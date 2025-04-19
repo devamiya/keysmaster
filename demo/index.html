@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>keysmaster Demo</title>
+</head>
+<body>
+  <h1>Press <kbd>Ctrl+Shift+K</kbd></h1>
+  <script type="module">
+    import keysmaster from '../dist/index.js';
+
+    keysmaster.init();
+    keysmaster('ctrl+shift+k', () => {
+      alert('Shortcut Triggered!');
+    });
+  </script>
+</body>
+</html>

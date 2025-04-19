@@ -27,39 +27,39 @@ yarn add keysmaster
 ## 🔰 Quick Start
 
 ```ts
-import keysmaster from 'keysmaster';
+import shortcut from 'keysmaster';
 
-keysmaster.init();
+shortcut.init();
 
-keysmaster('ctrl+s', (e) => {
+shortcut('ctrl+s', (e) => {
   e.preventDefault();
   console.log('Save triggered!');
 });
 ```
 
-> ✅ Use `keysmaster('ctrl+s', callback)` to bind, and `keysmaster.remove('ctrl+s')` to unbind.
+> ✅ Use `shortcut('ctrl+s', callback)` to bind, and `shortcut.remove('ctrl+s')` to unbind.
 
 ---
 
 ## ⚛️ React / Next.js Usage
 
-Keysmaster works perfectly in client-side or SSR apps like Next.js.
+shortcut works perfectly in client-side or SSR apps like Next.js.
 
 ```tsx
 import { useEffect } from 'react';
-import keysmaster from 'keysmaster';
+import shortcut from 'keysmaster';
 
 export default function Component() {
   useEffect(() => {
-    keysmaster.init();
+    shortcut.init();
 
-    const combo = keysmaster.isMac ? 'cmd+s' : 'ctrl+s';
+    const combo = shortcut.isMac ? 'cmd+s' : 'ctrl+s';
 
-    keysmaster(combo, () => {
+    shortcut(combo, () => {
       console.log('Save triggered!');
     });
 
-    return () => keysmaster.destroy(); // Clean up
+    return () => shortcut.destroy(); // Clean up
   }, []);
 
   return <div>Press Cmd+S / Ctrl+S to save</div>;
@@ -70,7 +70,7 @@ export default function Component() {
 
 ## 🔧 API Reference
 
-### `keysmaster(combo, callback, options?)`
+### `shortcut(combo, callback, options?)`
 Bind a keyboard shortcut or sequence.
 
 - `combo`: String like `'ctrl+s'`, `'shift+d'`, or `'ctrl+k ctrl+c'`
@@ -79,42 +79,42 @@ Bind a keyboard shortcut or sequence.
 
 ---
 
-### `keysmaster.remove(combo, scope?)`
+### `shortcut.remove(combo, scope?)`
 Unbind a specific shortcut (within optional scope)
 
 ---
 
-### `keysmaster.setScope(scope: string)`
+### `shortcut.setScope(scope: string)`
 Switch active scope (e.g., `'modal'`, `'editor'`, etc.)
 
 ---
 
-### `keysmaster.getScope()`
+### `shortcut.getScope()`
 Returns the current scope (`'global'` by default)
 
 ---
 
-### `keysmaster.init()`
+### `shortcut.init()`
 Attach the keyboard listener (must be called on client)
 
 ---
 
-### `keysmaster.destroy()`
+### `shortcut.destroy()`
 Detach the keyboard listener
 
 ---
 
-### `keysmaster.isMac`
+### `shortcut.isMac`
 Returns `true` if running on macOS (safe for SSR)
 
 ---
 
 ## 🧠 Mac Compatibility
 
-Keysmaster automatically detects `⌘ Cmd` on macOS. Use:
+shortcut automatically detects `⌘ Cmd` on macOS. Use:
 
 ```ts
-const combo = keysmaster.isMac ? 'cmd+s' : 'ctrl+s';
+const combo = shortcut.isMac ? 'cmd+s' : 'ctrl+s';
 ```
 
 ---
@@ -165,7 +165,7 @@ MIT — Made with ❤️ by [Amiya Panigrahi](https://devamiya.me)
 
 ### 🔗 Links
 
-- 🧠 GitHub: [github.com/your-username/keysmaster](https://github.com/devamiya/keysmaster)
+- 🧠 GitHub: [github.com/devamiya/keysmaster](https://github.com/devamiya/keysmaster)
 - 🐞 Report Issues: [GitHub Issues](https://github.com/devamiya/keysmaster/issues)
 - 🌍 Homepage: [npmjs.com/package/keysmaster](https://www.npmjs.com/package/keysmaster)
 

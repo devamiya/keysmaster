@@ -1,6 +1,6 @@
 {
   "name": "keysmaster",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "A tiny JavaScript utility to manage scoped keyboard shortcuts.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
