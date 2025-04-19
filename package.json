@@ -1,0 +1,24 @@
+{
+  "name": "keysmaster",
+  "version": "1.0.2",
+  "description": "A tiny JavaScript utility to manage scoped keyboard shortcuts.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "type": "module",
+  "scripts": {
+  "build": "tsc",
+  "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "keyboard",
+    "shortcuts",
+    "hotkeys",
+    "keybindings"
+  ],
+  "author": "Amiya Panigrahi",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

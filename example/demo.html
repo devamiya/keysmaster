@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Shortcut Demo</title></head>
+<body>
+  <h1>Try pressing "Ctrl + K"</h1>
+  <script type="module">
+    import shortcut from '../dist/index.js';
+
+    shortcut('i k', () => alert('Command palette opened!'));
+  </script>
+</body>
+</html>
