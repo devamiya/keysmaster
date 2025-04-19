@@ -2,12 +2,34 @@ const bindings = {};
 let currentScope = 'global';
 let sequenceBuffer = [];
 let sequenceTimeout = null;
+let isListenerAttached = false;
+/**
+ * Check if we are in a browser environment
+ */
+const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+/**
+ * Detect if the OS is macOS (safe for SSR)
+ */
+const isMac = isBrowser && navigator.platform.toUpperCase().includes('MAC');
+/**
+ * Normalize user-defined combo strings (e.g., cmd → meta)
+ */
+function normalizeShortcutInput(combo) {
+    return combo
+        .toLowerCase()
+        .replace(/command|cmd/g, 'meta')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+/**
+ * Normalize key press into standardized string
+ */
 function normalizeKey(event) {
     const keys = [];
     if (event.ctrlKey)
         keys.push('ctrl');
     if (event.metaKey)
-        keys.push('meta');
+        keys.push('meta'); // ⌘ key on Mac
     if (event.altKey)
         keys.push('alt');
     if (event.shiftKey)
@@ -35,12 +57,30 @@ function handler(event) {
         sequenceTimeout = window.setTimeout(resetSequenceBuffer, 500);
     }
 }
-document.addEventListener('keydown', handler, true);
+/**
+ * Explicitly attach the keyboard listener (safe in browser)
+ */
+function init() {
+    if (isBrowser && !isListenerAttached) {
+        document.addEventListener('keydown', handler, true);
+        isListenerAttached = true;
+    }
+}
+/**
+ * Explicitly remove the keyboard listener
+ */
+function destroy() {
+    if (isBrowser && isListenerAttached) {
+        document.removeEventListener('keydown', handler, true);
+        isListenerAttached = false;
+    }
+}
 function shortcut(keyCombo, callback, options = {}) {
     const scope = options.scope || 'global';
+    const normalized = normalizeShortcutInput(keyCombo);
     if (!bindings[scope])
         bindings[scope] = {};
-    bindings[scope][keyCombo.toLowerCase()] = callback;
+    bindings[scope][normalized] = callback;
 }
 shortcut.setScope = function (scope) {
     currentScope = scope;
@@ -53,12 +93,10 @@ shortcut.getBindings = function () {
 };
 shortcut.remove = function (keyCombo, scope = 'global') {
     var _a;
-    (_a = bindings[scope]) === null || _a === void 0 ? true : delete _a[keyCombo.toLowerCase()];
+    const normalized = normalizeShortcutInput(keyCombo);
+    (_a = bindings[scope]) === null || _a === void 0 ? true : delete _a[normalized];
 };
-shortcut.disableAll = function () {
-    document.removeEventListener('keydown', handler, true);
-};
-shortcut.enableAll = function () {
-    document.addEventListener('keydown', handler, true);
-};
+shortcut.init = init;
+shortcut.destroy = destroy;
+shortcut.isMac = isMac;
 export default shortcut;

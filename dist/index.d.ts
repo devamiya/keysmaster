@@ -9,7 +9,8 @@ declare namespace shortcut {
     var getScope: () => string;
     var getBindings: () => typeof bindings;
     var remove: (keyCombo: string, scope?: string) => void;
-    var disableAll: () => void;
-    var enableAll: () => void;
+    var init: () => void;
+    var destroy: () => void;
+    var isMac: boolean;
 }
 export default shortcut;
