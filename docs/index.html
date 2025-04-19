@@ -6,14 +6,17 @@
   <title>keysmaster Demo</title>
 </head>
 <body>
-  <h1>Press <kbd>Ctrl+Shift+K</kbd></h1>
+  <h1>Press <kbd>a</kbd></h1>
+  <h1>Press <kbd>i then m</kbd></h1>
+  <h1>Press <kbd>shift + a</kbd></h1>
   <script type="module">
-    import keysmaster from '../dist/index.js';
+    import shortcut from '../dist/index.js';
 
-    keysmaster.init();
-    keysmaster('ctrl+shift+k', () => {
-      alert('Shortcut Triggered!');
-    });
+    shortcut.init();
+    shortcut('a',()=> alert("pressed A"));
+    shortcut('i m',()=> alert("pressed I then M"));
+    shortcut('shift+a',()=> alert("pressed shift+"));
+
   </script>
 </body>
 </html>
