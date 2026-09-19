@@ -1,25 +1,59 @@
 {
   "name": "keysmaster",
-  "version": "1.0.7",
-  "description": "A tiny JavaScript utility to manage scoped keyboard shortcuts.",
-  "main": "dist/index.js",
+  "version": "2.0.0",
+  "description": "A tiny, powerful JavaScript & React utility to manage scoped keyboard shortcuts.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "scripts": {
-  "build": "tsc",
-  "prepublishOnly": "npm run build"
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "keyboard",
     "shortcuts",
     "hotkeys",
-    "keybindings"
+    "keybindings",
+    "react-hooks",
+    "react"
   ],
   "author": "Amiya Panigrahi",
   "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "jsdom": "^26.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.0.8"
   },
   "repository": {
     "type": "git",

@@ -3,20 +3,355 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>keysmaster Demo</title>
+  <title>🔑 keysmaster v2.0 Interactive Demo & Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --accent: #a855f7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --kbd-bg: #1e293b;
+      --kbd-border: #475569;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary);
+    }
+
+    .shortcut-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .shortcut-item span {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    kbd {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--kbd-bg);
+      border: 1px solid var(--kbd-border);
+      border-radius: 0.375rem;
+      box-shadow: 0 2px 0 var(--kbd-border);
+      color: var(--primary);
+      display: inline-block;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.5rem;
+      font-weight: 600;
+    }
+
+    .scope-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #0f172a;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--kbd-border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      outline: none;
+      margin-top: 0.5rem;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    .log-box {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .log-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .log-entry .time {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .log-entry .msg {
+      color: var(--success);
+    }
+
+    .log-entry .tag {
+      color: var(--accent);
+    }
+  </style>
 </head>
 <body>
-  <h1>Press <kbd>a</kbd></h1>
-  <h1>Press <kbd>i then m</kbd></h1>
-  <h1>Press <kbd>shift + a</kbd></h1>
+  <div class="container">
+    <header>
+      <h1>🔑 keysmaster v2.0</h1>
+      <p class="subtitle">Interactive Keyboard Shortcut & Scope Playground</p>
+    </header>
+
+    <div class="grid">
+      <!-- Section 1: Register Shortcut Demos -->
+      <div class="card">
+        <h2>⚡ Active Shortcuts</h2>
+        <div class="shortcut-list">
+          <div class="shortcut-item">
+            <span>Save Action</span>
+            <kbd>mod+s</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Multi-Key Sequence</span>
+            <kbd>ctrl+k ctrl+c</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Modal Scope Only</span>
+            <kbd>esc</kbd>
+          </div>
+          <div class="shortcut-item">
+            <span>Input Field Allowed</span>
+            <kbd>alt+i</kbd>
+          </div>
+        </div>
+
+        <h2 style="margin-top: 1.5rem;">🎯 Scope Control</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Current Active Scope: <span id="scope-indicator" class="status-badge">global</span>
+        </p>
+        <div class="scope-controls">
+          <button class="btn-primary" id="btn-global">Set Scope: global</button>
+          <button class="btn-secondary" id="btn-push-modal">Push Scope: modal</button>
+          <button class="btn-secondary" id="btn-pop-scope">Pop Scope</button>
+        </div>
+      </div>
+
+      <!-- Section 2: Input Filter Testing -->
+      <div class="card">
+        <h2>📝 Form Input Element Filter</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          By default, shortcuts (like <kbd>mod+s</kbd> or <kbd>a</kbd>) are blocked while typing in an input. Try pressing <kbd>alt+i</kbd> (which has <code>enableInInput: true</code>).
+        </p>
+        <input type="text" id="demo-input" placeholder="Click here and test shortcuts while typing..." />
+
+        <h2 style="margin-top: 1.5rem;">📟 Live Event Log</h2>
+        <div class="log-box" id="log-box">
+          <div class="log-entry">
+            <span class="msg">System initialized. Ready for keyboard input.</span>
+            <span class="time">ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import shortcut from '../dist/index.js';
 
-    shortcut.init();
-    shortcut('a',()=> alert("pressed A"));
-    shortcut('i m',()=> alert("pressed I then M"));
-    shortcut('shift+a',()=> alert("pressed shift+"));
+    const logBox = document.getElementById('log-box');
+    const scopeIndicator = document.getElementById('scope-indicator');
 
+    function log(msg, tag = 'TRIGGERED') {
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = `<span class="msg">✨ ${msg}</span><span class="tag">[${tag}]</span>`;
+      logBox.prepend(div);
+    }
+
+    function updateScopeUI() {
+      const current = shortcut.getScope();
+      const stack = shortcut.getScopeStack().join(' -> ');
+      scopeIndicator.textContent = `${current} (Stack: ${stack})`;
+    }
+
+    // Initialize keysmaster
+    shortcut.init();
+
+    // 1. Cross-platform mod+s (Cmd+S / Ctrl+S)
+    shortcut('mod+s', (e) => {
+      log(`Action: Save triggered! (Detected Mac: ${shortcut.isMac})`, 'GLOBAL');
+    });
+
+    // 2. Sequence ctrl+k ctrl+c
+    shortcut('ctrl+k ctrl+c', (e) => {
+      log('Multi-key Sequence triggered! (ctrl+k -> ctrl+c)', 'SEQUENCE');
+    });
+
+    // 3. Modal-scoped Escape key
+    shortcut('esc', (e) => {
+      log('Modal Escape key pressed! Popping modal scope.', 'MODAL');
+      if (shortcut.getScope() === 'modal') {
+        shortcut.popScope();
+        updateScopeUI();
+      }
+    }, { scope: 'modal' });
+
+    // 4. Input-enabled shortcut
+    shortcut('alt+i', (e) => {
+      log('Input-enabled shortcut triggered (alt+i)!', 'INPUT_ALLOWED');
+    }, { enableInInput: true });
+
+    // Scope button handlers
+    document.getElementById('btn-global').addEventListener('click', () => {
+      shortcut.setScope('global');
+      updateScopeUI();
+      log('Scope set to: global', 'SCOPE_CHANGE');
+    });
+
+    document.getElementById('btn-push-modal').addEventListener('click', () => {
+      shortcut.pushScope('modal');
+      updateScopeUI();
+      log('Pushed scope: modal onto stack', 'SCOPE_CHANGE');
+    });
+
+    document.getElementById('btn-pop-scope').addEventListener('click', () => {
+      const popped = shortcut.popScope();
+      updateScopeUI();
+      log(`Popped scope stack (Active: ${shortcut.getScope()})`, 'SCOPE_CHANGE');
+    });
+
+    updateScopeUI();
   </script>
 </body>
 </html>
