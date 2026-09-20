@@ -383,9 +383,47 @@ shortcut.resetBindings = function () {
   resetSequenceBuffer();
 };
 
+/**
+ * Format a key combo into human-readable native key symbols (e.g. 'mod+s' -> '⌘ S' on Mac, 'Ctrl+S' on Win)
+ */
+export function formatCombo(combo: string, mac = isMac): string {
+  const parts = combo.trim().toLowerCase().split(/\s+/);
+  return parts
+    .map((part) => {
+      const tokens = part.split('+').filter(Boolean);
+      return tokens
+        .map((t) => {
+          let token = t;
+          if (token === 'mod' || token === 'cmdorctrl') {
+            token = mac ? 'meta' : 'ctrl';
+          }
+          if (mac) {
+            if (token === 'meta' || token === 'cmd' || token === 'command') return '⌘';
+            if (token === 'alt' || token === 'option') return '⌥';
+            if (token === 'ctrl' || token === 'control') return '⌃';
+            if (token === 'shift') return '⇧';
+            if (token === 'esc' || token === 'escape') return 'Esc';
+            if (token === 'space') return 'Space';
+            return token.toUpperCase();
+          } else {
+            if (token === 'meta' || token === 'cmd' || token === 'command') return 'Win';
+            if (token === 'alt' || token === 'option') return 'Alt';
+            if (token === 'ctrl' || token === 'control') return 'Ctrl';
+            if (token === 'shift') return 'Shift';
+            if (token === 'esc' || token === 'escape') return 'Esc';
+            if (token === 'space') return 'Space';
+            return token.toUpperCase();
+          }
+        })
+        .join(mac ? '' : '+');
+    })
+    .join('  ');
+}
+
 shortcut.init = init;
 shortcut.destroy = destroy;
 shortcut.isMac = isMac;
 shortcut.normalizeShortcutInput = normalizeShortcutInput;
+shortcut.formatCombo = formatCombo;
 
 export default shortcut;

@@ -1,6 +1,6 @@
 {
   "name": "keysmaster",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A tiny, powerful JavaScript & React utility to manage scoped keyboard shortcuts.",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -22,7 +22,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && cp -r dist docs/",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build && npm test"

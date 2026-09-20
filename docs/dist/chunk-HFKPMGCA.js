@@ -1,7 +1,4 @@
-"use strict";
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
@@ -17,28 +14,6 @@ var __spreadValues = (a, b) => {
     }
   return a;
 };
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/react.ts
-var react_exports = {};
-__export(react_exports, {
-  default: () => react_default,
-  useShortcut: () => useShortcut
-});
-module.exports = __toCommonJS(react_exports);
-var import_react = require("react");
 
 // src/index.ts
 var MODIFIER_ORDER = {
@@ -355,26 +330,14 @@ shortcut.normalizeShortcutInput = normalizeShortcutInput;
 shortcut.formatCombo = formatCombo;
 var index_default = shortcut;
 
-// src/react.ts
-function useShortcut(combo, callback, options = {}, deps = []) {
-  const callbackRef = (0, import_react.useRef)(callback);
-  callbackRef.current = callback;
-  (0, import_react.useEffect)(() => {
-    index_default.init();
-    const handler2 = (event) => {
-      if (callbackRef.current) {
-        callbackRef.current(event);
-      }
-    };
-    const unbind = index_default(combo, handler2, options);
-    return () => {
-      unbind();
-    };
-  }, [combo, options.scope, options.enableInInput, options.preventDefault, options.stopPropagation, ...deps]);
-}
-var react_default = useShortcut;
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  useShortcut
-});
-//# sourceMappingURL=react.cjs.map
+export {
+  isBrowser,
+  isMac,
+  normalizeShortcutInput,
+  isStandaloneModifier,
+  normalizeKey,
+  isEditableElement,
+  formatCombo,
+  index_default
+};
+//# sourceMappingURL=chunk-HFKPMGCA.js.map

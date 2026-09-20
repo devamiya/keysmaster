@@ -294,10 +294,40 @@ shortcut.resetBindings = function() {
   scopeStack = ["global"];
   resetSequenceBuffer();
 };
+function formatCombo(combo, mac = isMac) {
+  const parts = combo.trim().toLowerCase().split(/\s+/);
+  return parts.map((part) => {
+    const tokens = part.split("+").filter(Boolean);
+    return tokens.map((t) => {
+      let token = t;
+      if (token === "mod" || token === "cmdorctrl") {
+        token = mac ? "meta" : "ctrl";
+      }
+      if (mac) {
+        if (token === "meta" || token === "cmd" || token === "command") return "\u2318";
+        if (token === "alt" || token === "option") return "\u2325";
+        if (token === "ctrl" || token === "control") return "\u2303";
+        if (token === "shift") return "\u21E7";
+        if (token === "esc" || token === "escape") return "Esc";
+        if (token === "space") return "Space";
+        return token.toUpperCase();
+      } else {
+        if (token === "meta" || token === "cmd" || token === "command") return "Win";
+        if (token === "alt" || token === "option") return "Alt";
+        if (token === "ctrl" || token === "control") return "Ctrl";
+        if (token === "shift") return "Shift";
+        if (token === "esc" || token === "escape") return "Esc";
+        if (token === "space") return "Space";
+        return token.toUpperCase();
+      }
+    }).join(mac ? "" : "+");
+  }).join("  ");
+}
 shortcut.init = init;
 shortcut.destroy = destroy;
 shortcut.isMac = isMac;
 shortcut.normalizeShortcutInput = normalizeShortcutInput;
+shortcut.formatCombo = formatCombo;
 var index_default = shortcut;
 
 export {
@@ -307,6 +337,7 @@ export {
   isStandaloneModifier,
   normalizeKey,
   isEditableElement,
+  formatCombo,
   index_default
 };
-//# sourceMappingURL=chunk-7BP55HGP.js.map
+//# sourceMappingURL=chunk-HFKPMGCA.js.map

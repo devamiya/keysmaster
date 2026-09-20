@@ -47,6 +47,13 @@ describe('keysmaster core', () => {
         expect(normalized).toBe('ctrl+s');
       }
     });
+
+    it('formats key combos into native Mac and Windows symbols', () => {
+      expect(shortcut.formatCombo('mod+s', true)).toBe('⌘S');
+      expect(shortcut.formatCombo('mod+s', false)).toBe('Ctrl+S');
+      expect(shortcut.formatCombo('mod+k mod+c', true)).toBe('⌘K  ⌘C');
+      expect(shortcut.formatCombo('alt+i', true)).toBe('⌥I');
+    });
   });
 
   describe('standalone modifier detection', () => {

@@ -54,6 +54,11 @@ declare namespace shortcut {
     var destroy: () => void;
     var isMac: boolean;
     var normalizeShortcutInput: typeof normalizeShortcutInput;
+    var formatCombo: typeof formatCombo;
 }
+/**
+ * Format a key combo into human-readable native key symbols (e.g. 'mod+s' -> '⌘ S' on Mac, 'Ctrl+S' on Win)
+ */
+declare function formatCombo(combo: string, mac?: boolean): string;
 
-export { type Binding, type ShortcutCallback, type ShortcutOptions, shortcut as default, isBrowser, isEditableElement, isMac, isStandaloneModifier, normalizeKey, normalizeShortcutInput };
+export { type Binding, type ShortcutCallback, type ShortcutOptions, shortcut as default, formatCombo, isBrowser, isEditableElement, isMac, isStandaloneModifier, normalizeKey, normalizeShortcutInput };
