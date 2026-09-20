@@ -3,24 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🔑 keysmaster v2.0 Interactive Demo & Playground</title>
+  <title>🔑 keysmaster — Keyboard Shortcut Manager for JS & React</title>
+  <meta name="description" content="A tiny, powerful, SSR-safe JavaScript & React Keyboard Shortcut Manager with Mac ⌘ detection, scope stack, and canonical modifier sorting." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #0f172a;
-      --card-bg: rgba(30, 41, 59, 0.7);
-      --card-border: rgba(255, 255, 255, 0.1);
+      --bg: #0b0f19;
+      --card-bg: rgba(21, 30, 48, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
       --primary: #38bdf8;
-      --primary-hover: #0284c7;
-      --accent: #a855f7;
+      --primary-glow: rgba(56, 189, 248, 0.25);
+      --accent: #c084fc;
+      --accent-glow: rgba(192, 132, 252, 0.25);
+      --success: #4ade80;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --kbd-bg: #1e293b;
-      --kbd-border: #475569;
-      --success: #22c55e;
-      --warning: #f59e0b;
+      --kbd-border: #334155;
+      --kbd-active: #0284c7;
+      --kbd-active-text: #ffffff;
+      --code-bg: #090d16;
     }
 
     * {
@@ -31,44 +35,187 @@
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 100%);
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glows */
+    .bg-glow-1 {
+      position: fixed;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(192, 132, 252, 0.08) 50%, transparent 80%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow-2 {
+      position: fixed;
+      bottom: -150px;
+      right: -100px;
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, transparent 70%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
     }
 
     .container {
-      max-width: 900px;
-      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
+    /* Header Nav */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 3rem;
     }
 
-    h1 {
-      font-size: 2.5rem;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span.badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #000;
+      font-size: 0.7rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--primary);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .os-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1.1rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    h1.hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+    }
+
+    h1.hero-title span {
+      background: linear-gradient(135deg, #38bdf8 0%, #c084fc 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 0.5rem;
     }
 
-    p.subtitle {
+    p.hero-desc {
+      font-size: 1.2rem;
       color: var(--text-muted);
-      font-size: 1.1rem;
+      max-width: 680px;
+      margin: 0 auto 2.5rem auto;
+      font-weight: 400;
     }
 
-    .grid {
+    /* Quick Install Command Box */
+    .install-box {
+      display: inline-flex;
+      align-items: center;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .install-box code {
+      color: var(--primary);
+      margin-right: 1.5rem;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-family: inherit;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary);
+      color: #000;
+      border-color: var(--primary);
+    }
+
+    /* Cards & Grid Layout */
+    .grid-2 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
     }
 
     .card {
@@ -76,62 +223,233 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4);
     }
 
-    .card h2 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      color: var(--primary);
+      gap: 0.6rem;
     }
 
-    .shortcut-list {
+    .card-title icon {
+      font-size: 1.3rem;
+    }
+
+    /* Virtual Keyboard Visualizer */
+    .keyboard-mockup {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: rgba(10, 15, 26, 0.9);
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .key-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .vk {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--kbd-bg);
+      border: 1px solid var(--kbd-border);
+      border-radius: 0.4rem;
+      color: var(--text-muted);
+      padding: 0.6rem 0.8rem;
+      min-width: 2.4rem;
+      text-align: center;
+      box-shadow: 0 3px 0 var(--kbd-border);
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    .vk.wide {
+      min-width: 4rem;
+    }
+
+    .vk.space-key {
+      min-width: 10rem;
+    }
+
+    .vk.active {
+      background: var(--primary);
+      color: #0f172a;
+      border-color: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+      transform: translateY(2px);
+    }
+
+    /* Shortcut Table */
+    .shortcut-table {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
     }
 
-    .shortcut-item {
+    .shortcut-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: rgba(15, 23, 42, 0.6);
       padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
-    .shortcut-item span {
+    .shortcut-row .label {
       font-size: 0.95rem;
-      color: var(--text);
+      font-weight: 500;
+    }
+
+    .shortcut-row .scope-tag {
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: rgba(192, 132, 252, 0.1);
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.25rem;
+      margin-left: 0.5rem;
     }
 
     kbd {
       font-family: 'JetBrains Mono', monospace;
       background: var(--kbd-bg);
       border: 1px solid var(--kbd-border);
-      border-radius: 0.375rem;
+      border-radius: 0.4rem;
       box-shadow: 0 2px 0 var(--kbd-border);
       color: var(--primary);
       display: inline-block;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.6rem;
+      font-weight: 700;
+    }
+
+    /* Terminal Console */
+    .console-box {
+      font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
-      padding: 0.25rem 0.5rem;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .console-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .console-line .msg {
+      color: var(--success);
+    }
+
+    .console-line .tag {
+      color: var(--accent);
+      font-size: 0.75rem;
       font-weight: 600;
     }
 
-    .scope-controls {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
+    .console-line .time {
+      color: var(--text-muted);
+      font-size: 0.75rem;
     }
 
-    button {
+    /* Scope Stack Visualizer */
+    .scope-stack-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: rgba(10, 15, 26, 0.8);
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+
+    .scope-node {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--primary);
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .scope-node.active-top {
+      background: var(--primary);
+      color: #0f172a;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .scope-arrow {
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    /* Interactive Inputs & Custom Binder */
+    .input-field {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: rgba(10, 15, 26, 0.8);
+      border: 1px solid var(--kbd-border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    /* Buttons */
+    .btn {
       font-family: inherit;
       font-weight: 600;
       font-size: 0.875rem;
@@ -140,6 +458,9 @@
       border: none;
       cursor: pointer;
       transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .btn-primary {
@@ -148,179 +469,463 @@
     }
 
     .btn-primary:hover {
-      background: var(--primary-hover);
+      background: #0284c7;
+      color: #fff;
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
+      border: 1px solid var(--card-border);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
     }
 
-    .status-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      background: rgba(34, 197, 94, 0.2);
-      color: var(--success);
-      border: 1px solid rgba(34, 197, 94, 0.4);
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 0.75rem 1rem;
+    /* Code Tabs Section */
+    .tabs-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      margin-bottom: 4rem;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
       font-family: inherit;
       font-size: 0.95rem;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--kbd-border);
-      border-radius: 0.5rem;
-      color: var(--text);
-      outline: none;
-      margin-top: 0.5rem;
-      transition: border-color 0.2s ease;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    input[type="text"]:focus {
-      border-color: var(--primary);
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
     }
 
-    .log-box {
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    pre {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.875rem;
-      background: #090d16;
+      font-size: 0.9rem;
+      background: var(--code-bg);
       border: 1px solid var(--card-border);
-      border-radius: 0.5rem;
-      padding: 1rem;
-      height: 180px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      color: #e2e8f0;
+      line-height: 1.5;
     }
 
-    .log-entry {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 0.25rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    /* Feature Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
     }
 
-    .log-entry .time {
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
       color: var(--text-muted);
-      font-size: 0.75rem;
     }
 
-    .log-entry .msg {
-      color: var(--success);
+    footer {
+      text-align: center;
+      padding: 2.5rem 0;
+      border-top: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
     }
 
-    .log-entry .tag {
-      color: var(--accent);
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
   <div class="container">
-    <header>
-      <h1>🔑 keysmaster v2.0</h1>
-      <p class="subtitle">Interactive Keyboard Shortcut & Scope Playground</p>
+    <!-- Navbar -->
+    <nav>
+      <a href="#" class="logo">
+        🔑 keysmaster <span class="badge">v2.0</span>
+      </a>
+      <div class="nav-links">
+        <a href="#playground" class="nav-link">Interactive Playground</a>
+        <a href="#code-examples" class="nav-link">Documentation</a>
+        <a href="https://github.com/devamiya/keysmaster" target="_blank" class="nav-link">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+      <div id="os-badge" class="os-badge">Detecting Operating System...</div>
+      <h1 class="hero-title">
+        The Scoped Keyboard Shortcut Manager for <span>JS & React</span>
+      </h1>
+      <p class="hero-desc">
+        Ultra-lightweight, SSR-safe library featuring automatic Mac ⌘ detection, canonical modifier sorting, scope stack management, and zero dependencies.
+      </p>
+
+      <div class="install-box">
+        <code>npm install keysmaster</code>
+        <button class="copy-btn" id="btn-copy-install">Copy</button>
+      </div>
     </header>
 
-    <div class="grid">
-      <!-- Section 1: Register Shortcut Demos -->
-      <div class="card">
-        <h2>⚡ Active Shortcuts</h2>
-        <div class="shortcut-list">
-          <div class="shortcut-item">
-            <span>Save Action</span>
-            <kbd>mod+s</kbd>
+    <!-- Interactive Playground Section -->
+    <section id="playground" style="margin-bottom: 4rem;">
+      <div class="grid-2">
+        <!-- Live Visual Keyboard & Active Shortcuts Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🎹 Live Keyboard Visualizer</h2>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Press keys on your keyboard</span>
           </div>
-          <div class="shortcut-item">
-            <span>Multi-Key Sequence</span>
-            <kbd>ctrl+k ctrl+c</kbd>
+
+          <!-- Virtual Keyboard Mockup -->
+          <div class="keyboard-mockup">
+            <div class="key-row">
+              <div class="vk" id="vk-escape">Esc</div>
+              <div class="vk" id="vk-q">Q</div>
+              <div class="vk" id="vk-w">W</div>
+              <div class="vk" id="vk-e">E</div>
+              <div class="vk" id="vk-r">R</div>
+              <div class="vk" id="vk-t">T</div>
+              <div class="vk" id="vk-k">K</div>
+              <div class="vk" id="vk-c">C</div>
+              <div class="vk" id="vk-s">S</div>
+              <div class="vk" id="vk-i">I</div>
+            </div>
+            <div class="key-row">
+              <div class="vk wide" id="vk-shift">Shift ⇧</div>
+              <div class="vk wide" id="vk-ctrl">Ctrl ⌃</div>
+              <div class="vk wide" id="vk-alt">Alt ⌥</div>
+              <div class="vk wide" id="vk-cmd">Cmd ⌘</div>
+              <div class="vk space-key" id="vk-space">Space</div>
+            </div>
           </div>
-          <div class="shortcut-item">
-            <span>Modal Scope Only</span>
-            <kbd>esc</kbd>
-          </div>
-          <div class="shortcut-item">
-            <span>Input Field Allowed</span>
-            <kbd>alt+i</kbd>
+
+          <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text);">⚡ Active Shortcuts</h3>
+          <div class="shortcut-table">
+            <div class="shortcut-row">
+              <div>
+                <span class="label">Save Action</span>
+                <span class="scope-tag">global</span>
+              </div>
+              <kbd id="kbd-save">mod+s</kbd>
+            </div>
+            <div class="shortcut-row">
+              <div>
+                <span class="label">Multi-Key Sequence</span>
+                <span class="scope-tag">global</span>
+              </div>
+              <kbd id="kbd-seq">mod+k mod+c</kbd>
+            </div>
+            <div class="shortcut-row">
+              <div>
+                <span class="label">Modal Close</span>
+                <span class="scope-tag">modal only</span>
+              </div>
+              <kbd id="kbd-esc">esc</kbd>
+            </div>
+            <div class="shortcut-row">
+              <div>
+                <span class="label">Input Allowed Action</span>
+                <span class="scope-tag">enableInInput</span>
+              </div>
+              <kbd id="kbd-input">alt+i</kbd>
+            </div>
           </div>
         </div>
 
-        <h2 style="margin-top: 1.5rem;">🎯 Scope Control</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
-          Current Active Scope: <span id="scope-indicator" class="status-badge">global</span>
-        </p>
-        <div class="scope-controls">
-          <button class="btn-primary" id="btn-global">Set Scope: global</button>
-          <button class="btn-secondary" id="btn-push-modal">Push Scope: modal</button>
-          <button class="btn-secondary" id="btn-pop-scope">Pop Scope</button>
+        <!-- Live Terminal Event Logger -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📟 Real-Time Event Log</h2>
+            <button class="btn btn-secondary" id="btn-clear-log" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;">Clear Console</button>
+          </div>
+          <div class="console-box" id="console-log">
+            <div class="console-line">
+              <span class="msg">System initialized. Ready for keyboard input.</span>
+              <span class="time">ready</span>
+            </div>
+          </div>
+
+          <h3 style="font-size: 1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--text);">📝 Test Form Input Filtering</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Standard shortcuts (like <kbd id="inline-save">⌘S</kbd>) are blocked while focused here. Press <kbd id="inline-alt-i">⌥I</kbd> to see <code>enableInInput</code> in action!
+          </p>
+          <input type="text" class="input-field" id="test-input" placeholder="Type here to test form input filtering..." />
         </div>
       </div>
 
-      <!-- Section 2: Input Filter Testing -->
-      <div class="card">
-        <h2>📝 Form Input Element Filter</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
-          By default, shortcuts (like <kbd>mod+s</kbd> or <kbd>a</kbd>) are blocked while typing in an input. Try pressing <kbd>alt+i</kbd> (which has <code>enableInInput: true</code>).
+      <!-- Scope Stack Interactive Sandbox -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+          <h2 class="card-title">🎯 Scope Hierarchy & Stack Sandbox</h2>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Pushing nested scopes (e.g. opening a modal or opening an editor) stacks scopes automatically while allowing fallback to global shortcuts.
         </p>
-        <input type="text" id="demo-input" placeholder="Click here and test shortcuts while typing..." />
 
-        <h2 style="margin-top: 1.5rem;">📟 Live Event Log</h2>
-        <div class="log-box" id="log-box">
-          <div class="log-entry">
-            <span class="msg">System initialized. Ready for keyboard input.</span>
-            <span class="time">ready</span>
+        <div class="form-group">
+          <label>Active Scope Stack Visualization:</label>
+          <div class="scope-stack-container" id="scope-stack-display">
+            <!-- Rendered dynamically -->
           </div>
         </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="btn-scope-push-modal">Push 'modal' Scope</button>
+          <button class="btn btn-secondary" id="btn-scope-push-editor">Push 'editor' Scope</button>
+          <button class="btn btn-secondary" id="btn-scope-pop">Pop Top Scope</button>
+          <button class="btn btn-secondary" id="btn-scope-reset">Reset to 'global'</button>
+        </div>
       </div>
-    </div>
+
+      <!-- Dynamic Custom Shortcut Creator Sandbox -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🛠️ Dynamic Shortcut Creator</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label>Key Combination:</label>
+            <input type="text" class="input-field" id="custom-combo" value="mod+shift+k" placeholder="e.g. mod+shift+k or ctrl+a" />
+          </div>
+          <div class="form-group">
+            <label>Custom Log Message:</label>
+            <input type="text" class="input-field" id="custom-msg" value="Custom shortcut triggered!" />
+          </div>
+          <div class="form-group">
+            <label>Options:</label>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.75rem;">
+              <label style="font-size: 0.85rem; cursor: pointer; color: var(--text);">
+                <input type="checkbox" id="custom-input-check" /> enableInInput
+              </label>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-bind-custom">Bind Custom Shortcut Live</button>
+      </div>
+    </section>
+
+    <!-- Code Examples & Integration Tabs -->
+    <section id="code-examples" class="tabs-container">
+      <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">📖 Code Examples & Integration</h2>
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="vanilla">Vanilla JS / TS</button>
+        <button class="tab-btn" data-tab="react">React / Next.js Hook</button>
+        <button class="tab-btn" data-tab="scopes">Scopes & Stack</button>
+      </div>
+
+      <div class="tab-content active" id="tab-vanilla">
+<pre><code>import shortcut from 'keysmaster';
+
+// Initialize the global listener
+shortcut.init();
+
+// Cross-platform Cmd+S (Mac) / Ctrl+S (Windows)
+const unbind = shortcut('mod+s', (e) => {
+  e.preventDefault();
+  console.log('Document saved!');
+});
+
+// Multi-key Vim / VS Code sequence
+shortcut('ctrl+k ctrl+c', () => {
+  console.log('Comment sequence triggered!');
+});
+
+// To unbind:
+// unbind();</code></pre>
+      </div>
+
+      <div class="tab-content" id="tab-react">
+<pre><code>import { useState } from 'react';
+import { useShortcut } from 'keysmaster/react';
+
+export default function EditorComponent() {
+  const [text, setText] = useState('');
+
+  // Automatically binds on mount and unbinds on unmount
+  useShortcut('mod+s', (e) => {
+    console.log('Saved inside React component!');
+  });
+
+  // Modal close shortcut
+  useShortcut('esc', () => {
+    console.log('Escape pressed!');
+  }, { scope: 'modal' });
+
+  return &lt;div&gt;React Editor Content&lt;/div&gt;;
+}</code></pre>
+      </div>
+
+      <div class="tab-content" id="tab-scopes">
+<pre><code>import shortcut from 'keysmaster';
+
+// Set active scope
+shortcut.setScope('editor');
+
+// Push nested scope (e.g. opening a modal dialog)
+shortcut.pushScope('modal');
+
+// Bind modal-only shortcut
+shortcut('esc', closeModal, { scope: 'modal' });
+
+// Global shortcuts still trigger automatically via fallback!
+
+// Pop scope when modal closes (restores 'editor' scope)
+shortcut.popScope();</code></pre>
+      </div>
+    </section>
+
+    <!-- Key Features Grid -->
+    <section class="features-grid">
+      <div class="feature-card">
+        <h3>🧠 Smart `mod` Alias</h3>
+        <p>Auto-resolves `mod+s` to ⌘ Cmd + S on macOS and Ctrl + S on Windows/Linux effortlessly.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🔀 Canonical Modifier Sorting</h3>
+        <p>`shift+ctrl+a` and `ctrl+shift+a` evaluate identically with zero configuration needed.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🛡️ Form Input Filtering</h3>
+        <p>Shortcuts are automatically blocked while typing in inputs unless explicitly enabled with `enableInInput: true`.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📚 Scope Stack & Fallback</h3>
+        <p>Supports nested scope stacks for modals and editors while gracefully falling back to global shortcuts.</p>
+      </div>
+      <div class="feature-card">
+        <h3>⚛️ Built-in React Hook</h3>
+        <p>Includes exported `useShortcut()` hook with automatic setup and lifecycle unbinding.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🪶 Zero Dependencies</h3>
+        <p>Extremely lightweight (< 10 KB unpacked bundle size), SSR-safe, and fully typed in TypeScript.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>MIT Licensed © 2026 Amiya Panigrahi • Made with ❤️ for Web & React Developers</p>
+      <p style="margin-top: 0.5rem;"><a href="https://github.com/devamiya/keysmaster" target="_blank">GitHub Repository</a> • <a href="https://www.npmjs.com/package/keysmaster" target="_blank">npm package</a></p>
+    </footer>
   </div>
 
   <script type="module">
-    import shortcut from '../dist/index.js';
+    import shortcut, { formatCombo } from '../dist/index.js';
 
-    const logBox = document.getElementById('log-box');
-    const scopeIndicator = document.getElementById('scope-indicator');
+    const consoleLog = document.getElementById('console-log');
+    const scopeStackDisplay = document.getElementById('scope-stack-display');
+    const osBadge = document.getElementById('os-badge');
 
     function log(msg, tag = 'TRIGGERED') {
       const time = new Date().toLocaleTimeString();
       const div = document.createElement('div');
-      div.className = 'log-entry';
-      div.innerHTML = `<span class="msg">✨ ${msg}</span><span class="tag">[${tag}]</span>`;
-      logBox.prepend(div);
+      div.className = 'console-line';
+      div.innerHTML = `<span class="msg">✨ ${msg}</span><div><span class="tag">[${tag}]</span> <span class="time">${time}</span></div>`;
+      consoleLog.prepend(div);
     }
 
     function updateScopeUI() {
-      const current = shortcut.getScope();
-      const stack = shortcut.getScopeStack().join(' -> ');
-      scopeIndicator.textContent = `${current} (Stack: ${stack})`;
+      const stack = shortcut.getScopeStack();
+      scopeStackDisplay.innerHTML = '';
+
+      stack.forEach((scope, index) => {
+        const isTop = index === stack.length - 1;
+        const node = document.createElement('div');
+        node.className = `scope-node ${isTop ? 'active-top' : ''}`;
+        node.textContent = isTop ? `${scope} (Active)` : scope;
+        scopeStackDisplay.appendChild(node);
+
+        if (index < stack.length - 1) {
+          const arrow = document.createElement('span');
+          arrow.className = 'scope-arrow';
+          arrow.textContent = '➔';
+          scopeStackDisplay.appendChild(arrow);
+        }
+      });
     }
+
+    // Detect OS & Update Badges
+    if (shortcut.isMac) {
+      osBadge.innerHTML = '🍎 macOS Detected — Native ⌘ Command & ⌥ Option Shortcuts Active';
+    } else {
+      osBadge.innerHTML = '💻 Windows / Linux Detected — Using Ctrl & Alt Shortcuts';
+    }
+
+    document.getElementById('kbd-save').textContent = formatCombo('mod+s');
+    document.getElementById('kbd-seq').textContent = formatCombo('mod+k mod+c');
+    document.getElementById('kbd-esc').textContent = formatCombo('esc');
+    document.getElementById('kbd-input').textContent = formatCombo('alt+i');
+    document.getElementById('inline-save').textContent = formatCombo('mod+s');
+    document.getElementById('inline-alt-i').textContent = formatCombo('alt+i');
 
     // Initialize keysmaster
     shortcut.init();
 
     // 1. Cross-platform mod+s (Cmd+S / Ctrl+S)
     shortcut('mod+s', (e) => {
-      log(`Action: Save triggered! (Detected Mac: ${shortcut.isMac})`, 'GLOBAL');
+      log(`Save Action triggered (${formatCombo('mod+s')})`, 'GLOBAL');
     });
 
-    // 2. Sequence ctrl+k ctrl+c
-    shortcut('ctrl+k ctrl+c', (e) => {
-      log('Multi-key Sequence triggered! (ctrl+k -> ctrl+c)', 'SEQUENCE');
+    // 2. Sequence mod+k mod+c
+    shortcut('mod+k mod+c', (e) => {
+      log(`Multi-key Sequence triggered! (${formatCombo('mod+k mod+c')})`, 'SEQUENCE');
     });
 
     // 3. Modal-scoped Escape key
     shortcut('esc', (e) => {
-      log('Modal Escape key pressed! Popping modal scope.', 'MODAL');
+      log(`Modal Escape key (${formatCombo('esc')}) pressed! Popping modal scope.`, 'MODAL');
       if (shortcut.getScope() === 'modal') {
         shortcut.popScope();
         updateScopeUI();
@@ -329,26 +934,92 @@
 
     // 4. Input-enabled shortcut
     shortcut('alt+i', (e) => {
-      log('Input-enabled shortcut triggered (alt+i)!', 'INPUT_ALLOWED');
+      log(`Input-enabled shortcut triggered (${formatCombo('alt+i')})!`, 'INPUT_ALLOWED');
     }, { enableInInput: true });
 
-    // Scope button handlers
-    document.getElementById('btn-global').addEventListener('click', () => {
-      shortcut.setScope('global');
-      updateScopeUI();
-      log('Scope set to: global', 'SCOPE_CHANGE');
+    // Physical key highlight mapping for Virtual Keyboard
+    window.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      
+      // Highlight Virtual Key Caps
+      if (e.metaKey) highlightVK('vk-cmd');
+      if (e.ctrlKey) highlightVK('vk-ctrl');
+      if (e.altKey) highlightVK('vk-alt');
+      if (e.shiftKey) highlightVK('vk-shift');
+      if (key === ' ') highlightVK('vk-space');
+      if (key === 'escape') highlightVK('vk-escape');
+      if (document.getElementById(`vk-${key}`)) highlightVK(`vk-${key}`);
     });
 
-    document.getElementById('btn-push-modal').addEventListener('click', () => {
+    function highlightVK(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('active');
+        setTimeout(() => el.classList.remove('active'), 250);
+      }
+    }
+
+    // Copy install command
+    document.getElementById('btn-copy-install').addEventListener('click', () => {
+      navigator.clipboard.writeText('npm install keysmaster');
+      const btn = document.getElementById('btn-copy-install');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+
+    // Console clear
+    document.getElementById('btn-clear-log').addEventListener('click', () => {
+      consoleLog.innerHTML = '<div class="console-line"><span class="msg">Console cleared.</span><span class="time">cleared</span></div>';
+    });
+
+    // Scope Controls
+    document.getElementById('btn-scope-push-modal').addEventListener('click', () => {
       shortcut.pushScope('modal');
       updateScopeUI();
-      log('Pushed scope: modal onto stack', 'SCOPE_CHANGE');
+      log("Pushed scope 'modal' onto stack", 'SCOPE');
     });
 
-    document.getElementById('btn-pop-scope').addEventListener('click', () => {
+    document.getElementById('btn-scope-push-editor').addEventListener('click', () => {
+      shortcut.pushScope('editor');
+      updateScopeUI();
+      log("Pushed scope 'editor' onto stack", 'SCOPE');
+    });
+
+    document.getElementById('btn-scope-pop').addEventListener('click', () => {
       const popped = shortcut.popScope();
       updateScopeUI();
-      log(`Popped scope stack (Active: ${shortcut.getScope()})`, 'SCOPE_CHANGE');
+      log(`Popped scope stack. Active scope: '${shortcut.getScope()}'`, 'SCOPE');
+    });
+
+    document.getElementById('btn-scope-reset').addEventListener('click', () => {
+      shortcut.setScope('global');
+      updateScopeUI();
+      log("Reset scope stack to 'global'", 'SCOPE');
+    });
+
+    // Custom Shortcut Creator Binder
+    document.getElementById('btn-bind-custom').addEventListener('click', () => {
+      const combo = document.getElementById('custom-combo').value.trim();
+      const msg = document.getElementById('custom-msg').value.trim();
+      const enableInInput = document.getElementById('custom-input-check').checked;
+
+      if (!combo) return;
+
+      shortcut(combo, (e) => {
+        log(`${msg} (${formatCombo(combo)})`, 'CUSTOM');
+      }, { enableInInput });
+
+      log(`Bound custom shortcut: ${formatCombo(combo)} (enableInInput: ${enableInInput})`, 'BOUND');
+    });
+
+    // Tab Switching Logic
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      });
     });
 
     updateScopeUI();
