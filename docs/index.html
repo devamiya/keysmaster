@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PrismJS CSS for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet" />
   <style>
     :root {
       --bg: #0b0f19;
@@ -533,15 +536,34 @@
     }
 
     pre {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      background: var(--code-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
-      padding: 1.25rem;
-      overflow-x: auto;
-      color: #e2e8f0;
-      line-height: 1.5;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.9rem !important;
+      border: 1px solid var(--card-border) !important;
+      border-radius: 0.75rem !important;
+      padding: 1.25rem !important;
+      overflow-x: auto !important;
+      line-height: 1.5 !important;
+      margin: 0 !important;
+    }
+    
+    /* Override Prism toolbar button style to match our dark theme */
+    div.code-toolbar > .toolbar a,
+    div.code-toolbar > .toolbar button,
+    div.code-toolbar > .toolbar span {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #fff !important;
+      border-radius: 0.4rem !important;
+      padding: 0.3rem 0.6rem !important;
+      font-family: 'Inter', sans-serif !important;
+      font-size: 0.75rem !important;
+      transition: all 0.2s ease !important;
+    }
+
+    div.code-toolbar > .toolbar a:hover,
+    div.code-toolbar > .toolbar button:hover,
+    div.code-toolbar > .toolbar span:hover {
+      background: var(--primary) !important;
+      color: #000 !important;
     }
 
     /* Feature Grid */
@@ -766,7 +788,7 @@
       </div>
 
       <div class="tab-content active" id="tab-vanilla">
-<pre><code>import shortcut from 'keysmaster';
+<pre><code class="language-javascript">import shortcut from 'keysmaster';
 
 // Initialize the global listener
 shortcut.init();
@@ -787,7 +809,7 @@ shortcut('ctrl+k ctrl+c', () => {
       </div>
 
       <div class="tab-content" id="tab-react">
-<pre><code>import { useState } from 'react';
+<pre><code class="language-jsx">import { useState } from 'react';
 import { useShortcut } from 'keysmaster/react';
 
 export default function EditorComponent() {
@@ -808,7 +830,7 @@ export default function EditorComponent() {
       </div>
 
       <div class="tab-content" id="tab-scopes">
-<pre><code>import shortcut from 'keysmaster';
+<pre><code class="language-javascript">import shortcut from 'keysmaster';
 
 // Set active scope
 shortcut.setScope('editor');
@@ -1024,5 +1046,12 @@ shortcut.popScope();</code></pre>
 
     updateScopeUI();
   </script>
+
+  <!-- PrismJS for syntax highlighting & Copy button -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
 </body>
 </html>

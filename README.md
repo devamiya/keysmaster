@@ -170,7 +170,9 @@ Registers a keyboard shortcut or sequence. Returns an `unbind()` cleanup functio
 
 ## 🧪 Interactive Demo
 
-Check out [`/docs/index.html`](./docs/index.html) for a live visual demo and playground.
+Play around with the **[Live Interactive Demo & Playground](https://devamiya.github.io/keysmaster/)**.
+
+Alternatively, you can run it locally:
 
 ```bash
 npx serve .
